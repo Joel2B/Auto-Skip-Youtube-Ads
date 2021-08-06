@@ -20,7 +20,7 @@ only tested in chrome and brave
 1. Enter the extension Pop-up
 2. Activate all options
 
-### Ways to skip ads
+## Ways to skip ads
 
 1. Report the ad (inappropriate, repetitive, irrelevant)
 2. Click on the "Skip Ad" button
@@ -28,4 +28,7 @@ only tested in chrome and brave
 
 It's recommended to activate method 3, which will work 100% of the time.
 
+## Screenshots
+![1](https://user-images.githubusercontent.com/58922368/128459082-d7e92a94-eba6-4322-9694-beb0eab1a41a.png)
 
+![2](https://user-images.githubusercontent.com/58922368/128459099-3c6d086d-7d89-491f-83da-a14fdb93238a.png)
