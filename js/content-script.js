@@ -80,11 +80,12 @@ let skipAd = () => {
         });
     });
 
+    // Method 2 - click the announcement skip button that appears after 5 seconds
     getOption('m2', status => {
         if (!status || methodExecuted) {
             return;
         }
-        // Method 2 - click the announcement skip button that appears after 5 seconds
+
         if (document.querySelector('video') && document.querySelector('.ytp-ad-skip-button.ytp-button')) {
             for (let i = 0; i < 5; i++) {
                 document.querySelector('video').currentTime += 1;
@@ -105,13 +106,13 @@ let skipAd = () => {
         }
     });
 
+    // Method 3 - advance 5 seconds and force it to end
     getOption('m3', status => {
         if (!status || methodExecuted) {
             return;
         }
         const video = document.querySelector('video');
         if (video) {
-            // Method 3 - advance 5 seconds and force it to end
             if (isFinite(video.duration)) {
                 for (let i = 0; i < 5; i++) {
                     video.currentTime += 1;
@@ -143,11 +144,12 @@ let startObserver = () => {
 
     let callback = mutationsList => {
         for (const mutation of mutationsList) {
+            const classCss = mutation.target.className;
             if (
-                mutation.target.className == 'ytp-ad-player-overlay' &&
-                mutation.target.className == 'ytp-ad-player-overlay-instream-info' ||
-                mutation.target.className == 'ytp-ad-simple-ad-badge' ||
-                mutation.target.className == 'video-ads ytp-ad-module'
+                classCss.includes('ytp-ad-player-overlay') &&
+                classCss.includes('ytp-ad-player-overlay-instream-info') ||
+                classCss.includes('ytp-ad-simple-ad-badge') ||
+                classCss.includes('video-ads ytp-ad-module')
             ) {
                 getOption('block-ads', val => {
                     if (val) {
@@ -155,9 +157,9 @@ let startObserver = () => {
                     }
                 });
             } else if (
-                mutation.target.className == 'ytp-ad-overlay-container' ||
-                mutation.target.className == 'ytp-ad-text-overlay' ||
-                /ytp-ad-overlay-open/.test(mutation.target.className)
+                classCss.includes('ytp-ad-overlay-container') ||
+                classCss.includes('ytp-ad-text-overlay') ||
+                classCss.includes('ytp-ad-overlay-open')
             ) {
                 getOption('block-overlays-ads', val => {
                     if (val) {

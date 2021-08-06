@@ -10,7 +10,7 @@ let getLocalStorage = (key, callback) => {
     });
 }
 
-let createSelect = (selectOptions) => {
+let createSelect = selectOptions => {
     const id = selectOptions.id;
     getLocalStorage(id, result => {
         let selectedOption;
@@ -24,8 +24,8 @@ let createSelect = (selectOptions) => {
         let optionsHTML = '<div class="' + selectOptions.classList[0] + '">';
         optionsHTML += '<span class="custom-select-trigger">' + selectedOption + '</span>';
         optionsHTML += '<div class="custom-options"><div>';
-        for (let i = 0; i < selectOptions.options.length; i++) {
-            optionsHTML += '<span class="custom-option">' + selectOptions.options[i].textContent + '</span>';
+        for (const option of selectOptions.options) {
+            optionsHTML += '<span class="custom-option">' + option.textContent + '</span>';
         }
         optionsHTML += '</div></div></div>';
 
@@ -153,16 +153,16 @@ const options = document.querySelectorAll('.nav-tabs li');
 const tabs = document.querySelectorAll('.tab-content .tab-pane');
 const manifest = chrome.runtime.getManifest();
 
-document.querySelector('.tab-content').addEventListener('change', (e) => {
+document.querySelector('.tab-content').addEventListener('change', e => {
     const id = e.target.id;
     const input = document.getElementById(id);
     setLocalStorage(id, input.checked);
     if (id == 'extension') {
         chrome.tabs.query({
             url: manifest.content_scripts[0].matches
-        }, (tabs) => {
-            for (let i = 0; i < tabs.length; i++) {
-                chrome.tabs.sendMessage(tabs[i].id, {
+        }, tabs => {
+            for (const tab of tabs) {
+                chrome.tabs.sendMessage(tab.id, {
                     action: 'extension',
                     value: input.checked
                 });
@@ -171,7 +171,7 @@ document.querySelector('.tab-content').addEventListener('change', (e) => {
     }
 }, false);
 
-document.querySelector('.nav').addEventListener('click', (e) => {
+document.querySelector('.nav').addEventListener('click', e => {
     if (e.target.nodeName == 'A') {
         for (const [index, option] of options.entries()) {
             if (option.className == 'active') {
