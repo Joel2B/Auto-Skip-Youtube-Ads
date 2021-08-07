@@ -196,6 +196,10 @@ for (const select of selectOptions) {
 
 for (const input of inputs) {
     getLocalStorage(input.id, result => {
+        if (result == null) {
+            result = true;
+            setLocalStorage(input.id, result);
+        }
         document.getElementById(input.id).checked = result;
     });
 }
