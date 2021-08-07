@@ -145,6 +145,9 @@ let startObserver = () => {
     let callback = mutationsList => {
         for (const mutation of mutationsList) {
             const classCss = mutation.target.className;
+            if (typeof classCss != 'string') {
+                continue;
+            }
             if (
                 classCss.includes('ytp-ad-player-overlay') &&
                 classCss.includes('ytp-ad-player-overlay-instream-info') ||
