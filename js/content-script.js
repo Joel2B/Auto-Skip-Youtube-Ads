@@ -194,39 +194,38 @@ let startObserver = () => {
     return observer;
 }
 
-let disconnectObserver = (observer) => {
+let disconnectObserver = observer => {
     observer.disconnect();
     console.log('[Extension] Observer disconnected');
 }
 
-window.addEventListener('load', () => {
-    let observer;
+let observer;
 
-    getOption('extension', val => {
-        if (val) {
-            observer = startObserver();
-            if (!observer) {
-                console.log('[Extension] Observer error');
-                let timer = setInterval(() => {
-                    console.log('[Extension] Trying to connect the observer');
-                    observer = startObserver();
-                    if (observer) {
-                        clearInterval(timer);
-                    }
-                }, 1000);
-            }
-        }
-    });
-
-    chrome.runtime.onMessage.addListener(
-        request => {
-            if (request.action == 'extension') {
-                if (request.value) {
+getOption('extension', val => {
+    if (val) {
+        observer = startObserver();
+        if (!observer) {
+            console.log('[Extension] Observer error');
+            let timer = setInterval(() => {
+                console.log('[Extension] Trying to connect the observer');
+                if (!observer) {
                     observer = startObserver();
                 } else {
-                    disconnectObserver(observer);
+                    clearInterval(timer);
                 }
+            }, 50);
+        }
+    }
+});
+
+chrome.runtime.onMessage.addListener(
+    request => {
+        if (request.action == 'extension') {
+            if (request.value) {
+                observer = startObserver();
+            } else {
+                disconnectObserver(observer);
             }
         }
-    );
-}, false);
+    }
+);
