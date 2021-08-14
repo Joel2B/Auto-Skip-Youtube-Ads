@@ -90,8 +90,12 @@ function m3() {
         return;
     }
 
+    const ad = document.querySelectorAll(
+        '.ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info, .ytp-ad-simple-ad-badge',
+    );
+
     const video = document.querySelector('video');
-    if (!video || !isFinite(video.duration)) {
+    if (!video || !isFinite(video.duration) || ad.length == 0) {
         sendMessageBackground({
             id: 'analytics',
             value: {

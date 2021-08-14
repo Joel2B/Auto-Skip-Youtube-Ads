@@ -20,9 +20,7 @@ async function loadAnalytics() {
                     success: 0,
                 },
             },
-            others: {
-                overlayAds: 0,
-            },
+            overlayAds: 0,
         };
         setLocalStorage('analytics', analytics);
     }
@@ -46,8 +44,8 @@ async function loadAnalytics() {
                     totalsAll.textContent = Number(totalsAll.textContent) + quantity;
                 }
             }
-        } else if (data == 'others') {
-            document.getElementById('overlay-ads').textContent = analytics[data]['overlayAds'];
+        } else {
+            document.getElementById('overlayAds').textContent = analytics['overlayAds'];
         }
     }
 }

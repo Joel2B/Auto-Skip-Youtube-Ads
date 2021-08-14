@@ -30,21 +30,23 @@ async function connectObserver() {
             }
 
             if (
-                (cssClass.includes('ytp-ad-player-overlay') &&
-                    cssClass.includes('ytp-ad-player-overlay-instream-info')) ||
-                cssClass.includes('ytp-ad-simple-ad-badge') ||
-                (cssClass.includes('video-ads') && document.getElementsByClassName('video-ads')[0].innerHTML != '')
-            ) {
-                skipAd();
-                return;
-            }
-
-            if (
+                cssClass.includes('ytp-ad-overlay-ad-info-dialog-container') ||
                 cssClass.includes('ytp-ad-overlay-container') ||
+                cssClass.includes('ytp-ad-overlay-slot') ||
                 cssClass.includes('ytp-ad-text-overlay') ||
                 cssClass.includes('ytp-ad-overlay-open')
             ) {
                 skipOverlay();
+                return;
+            }
+
+            if (
+                cssClass.includes('ytp-ad-text') ||
+                cssClass.includes('ytp-ad-player-overlay') ||
+                cssClass.includes('ytp-ad-simple-ad-badge') ||
+                (cssClass.includes('video-ads') && document.getElementsByClassName('video-ads')[0].innerHTML != '')
+            ) {
+                skipAd();
             }
         }
     };
