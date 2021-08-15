@@ -4,7 +4,13 @@ import { debug } from 'extension/modules/debug';
 
 let methodExecuted;
 
-function m1() {
+const delay = (ms) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+};
+
+async function m1() {
     if (!getOption('m1')) {
         return;
     }
@@ -30,6 +36,7 @@ function m1() {
         return;
     }
     reportButton[0].click();
+    await delay(200);
     reportButton[1].click();
 
     const options = document.getElementsByClassName('ytp-ad-feedback-dialog-reason-text');
