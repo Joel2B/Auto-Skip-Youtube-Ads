@@ -101,7 +101,6 @@ function restartExecution() {
         if (getOption('curent-path') != url && url.includes('watch')) {
             if (observer) {
                 disconnectObserver();
-                setOption('subtitlesActivated', false);
             }
             connectObserver();
         }
