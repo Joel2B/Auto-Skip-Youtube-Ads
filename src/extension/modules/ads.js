@@ -39,23 +39,35 @@ async function m1() {
     await delay(200);
     reportButton[1].click();
 
+    let selected = false;
     const options = document.getElementsByClassName('ytp-ad-feedback-dialog-reason-text');
+    if (options.length == 0) {
+        return;
+    }
     for (const option of options) {
         if (option.textContent != reportText) {
             continue;
         }
+        selected = true;
         option.click();
         confirmButton.click();
-        methodExecuted = true;
-        sendMessageBackground({
-            id: 'analytics',
-            value: {
-                method: 1,
-                status: 1,
-            },
-        });
-        debug('m1', 1);
     }
+
+    if (!selected) {
+        let randOption = Math.floor(Math.random() * options.length);
+        options[randOption].click();
+        confirmButton.click();
+    }
+
+    sendMessageBackground({
+        id: 'analytics',
+        value: {
+            method: 1,
+            status: 1,
+        },
+    });
+    debug('m1', 1);
+    methodExecuted = true;
 }
 
 function m2() {
@@ -128,7 +140,7 @@ function m3() {
     debug('m3', 1);
 }
 
-export function skipAd() {
+export async function skipAd() {
     if (!getOption('block-ads')) {
         return;
     }
