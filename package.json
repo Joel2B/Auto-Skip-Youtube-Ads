@@ -4,7 +4,8 @@
     "description": "It's a chrome extension that skips the ads that appears in a youtube video.",
     "scripts": {
         "build": "webpack --mode=production",
-        "build-dev": "webpack --mode=development"
+        "build-dev": "webpack",
+        "watch": "webpack -w"
     },
     "repository": {
         "type": "git",
