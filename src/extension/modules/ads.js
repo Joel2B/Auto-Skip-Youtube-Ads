@@ -110,7 +110,7 @@ function m3() {
     }
 
     const ad = document.querySelectorAll(
-        '.ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info, .ytp-ad-simple-ad-badge',
+        '.ytp-ad-player-overlay-layout, .ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info, .ytp-ad-simple-ad-badge',
     );
 
     const video = document.querySelector('video');
