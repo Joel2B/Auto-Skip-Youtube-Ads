@@ -1,0 +1,54 @@
+.tab-nav {
+    padding: 4px 0 4px 3px;
+    margin-bottom: -2px;
+}
+
+.tab-nav ul {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.tab-nav > li {
+    position: relative;
+    display: block;
+    margin-bottom: 2px;
+    margin-right: -1px;
+}
+
+.tab-nav > li > a {
+    border: 1px solid transparent;
+    border-radius: 4px 0 0 4px;
+    padding: 10px 15px;
+}
+
+.tab-nav > li.active > a,
+.tab-nav > li.active > a:hover {
+    cursor: default;
+    background-color: #282828;
+    border: 1px solid #3e3e3e;
+    border-right-color: transparent;
+}
+
+.tab-nav > li > a:hover {
+    background-color: #54545460;
+    border-color: #54545460 #54545460 #54545460;
+}
+
+.tab-nav a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+}
+
+.tab-nav a .svg {
+    width: 20px;
+    pointer-events: none;
+}
+
+.tab-content > .tab-pane {
+    display: none;
+}
+
+.tab-content > .active {
+    display: block;
+}

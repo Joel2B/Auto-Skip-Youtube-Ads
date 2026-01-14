@@ -1,0 +1,48 @@
+.popup {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+.container {
+    display: flex;
+    margin: 4px 0;
+    justify-content: center;
+}
+
+.nav {
+    width: 22%;
+}
+
+.content {
+    width: 76%;
+    background: #282828;
+    margin-right: 3px;
+    border-radius: 4px;
+    border: 1px solid #3e3e3e;
+    color: #fff;
+}
+
+.header-popup {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #282828;
+}
+
+.header-popup p {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.body-popup {
+    height: 90%;
+    background: #363636;
+}
+
+.tab-content {
+    padding: 5px;
+}

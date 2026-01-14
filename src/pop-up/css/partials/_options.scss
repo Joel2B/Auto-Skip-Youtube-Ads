@@ -1,0 +1,25 @@
+.option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.option:first-child {
+    margin-top: 7px;
+}
+
+.option:last-child {
+    margin-bottom: 7px;
+}
+
+#home .option:first-child {
+    margin-bottom: 0;
+}
+
+.switch {
+    z-index: 1;
+}
+
+.option-select {
+    margin-top: 14px;
+}
