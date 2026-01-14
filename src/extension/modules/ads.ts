@@ -54,7 +54,7 @@ async function m1() {
     }
 
     if (!selected) {
-        let randOption = Math.floor(Math.random() * options.length);
+        const randOption = Math.floor(Math.random() * options.length);
         options[randOption].click();
         confirmButton.click();
     }
