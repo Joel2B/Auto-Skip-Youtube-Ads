@@ -1,12 +1,12 @@
 import { debug } from 'extension/modules/debug';
 
 /* global chrome */
-export function onMessage(callback, async) {
+export function onMessage(callback: (request: any) => void, keepAlive = false) {
     try {
         chrome.runtime.onMessage.addListener((request) => {
-            debug('onMessage', request, async);
+            debug('onMessage', request, keepAlive);
             callback(request);
-            if (async) {
+            if (keepAlive) {
                 return true;
             }
         });
@@ -15,7 +15,7 @@ export function onMessage(callback, async) {
     }
 }
 
-export function sendMessage(value) {
+export function sendMessage(value: any) {
     try {
         debug('sendMessage', value);
         const manifest = chrome.runtime.getManifest();
@@ -25,7 +25,9 @@ export function sendMessage(value) {
             },
             (tabs) => {
                 for (const tab of tabs) {
-                    chrome.tabs.sendMessage(tab.id, value);
+                    if (tab.id != null) {
+                        chrome.tabs.sendMessage(tab.id, value);
+                    }
                 }
             },
         );
@@ -34,7 +36,7 @@ export function sendMessage(value) {
     }
 }
 
-export function sendMessageBackground(value) {
+export function sendMessageBackground(value: any) {
     try {
         debug('sendMessageBackground', value);
         chrome.runtime.sendMessage(value);

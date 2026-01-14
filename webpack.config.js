@@ -1,7 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const FileManagerPlugin = require('filemanager-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env, arg) => {
     const mode = arg.mode;
@@ -10,11 +10,24 @@ module.exports = (env, arg) => {
         mode: mode === 'production' ? mode : 'development',
         devtool: mode === 'development' ? 'inline-source-map' : false,
         entry: {
-            'pop-up': './src/pop-up/modules/script.js',
-            background: './src/extension/modules/background.js',
-            'content-script': './src/extension/modules/content-script.js',
+            'pop-up': './src/pop-up/modules/script.ts',
+            background: './src/extension/modules/background.ts',
+            'content-script': './src/extension/modules/content-script.ts',
         },
-        resolve: { extensions: ['.js'], modules: [path.resolve(__dirname, 'src'), 'node_modules'] },
+        resolve: { extensions: ['.ts', '.js'], modules: [path.resolve(__dirname, 'src'), 'node_modules'] },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/,
+                    exclude: /node_modules/,
+                    use: 'ts-loader',
+                },
+                {
+                    test: /\.(scss|css)$/,
+                    use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+                },
+            ],
+        },
         optimization: {
             minimize: mode === 'production',
         },
@@ -35,40 +48,14 @@ module.exports = (env, arg) => {
                         from: './src/pop-up/img/',
                         to: './img/',
                     },
-                    {
-                        from: './src/pop-up/css/styles.css',
-                        to: './css/pop-up.css',
-                    },
                 ],
             }),
-            new FileManagerPlugin({
-                events: {
-                    onEnd: [
-                        {
-                            copy: [
-                                {
-                                    source: './dist/pop-up.js',
-                                    destination: './dist/js/pop-up.js',
-                                },
-                                {
-                                    source: './dist/content-script.js',
-                                    destination: './dist/js/content-script.js',
-                                },
-                                {
-                                    source: './dist/background.js',
-                                    destination: './dist/js/background.js',
-                                },
-                            ],
-                        },
-                        {
-                            delete: ['./dist/pop-up.js', './dist/content-script.js', './dist/background.js'],
-                        },
-                    ],
-                },
+            new MiniCssExtractPlugin({
+                filename: 'css/[name].css',
             }),
         ],
         output: {
-            filename: '[name].js',
+            filename: 'js/[name].js',
             path: path.resolve(__dirname, 'dist'),
             clean: true,
         },

@@ -5,9 +5,9 @@ const visibleOptions = 3;
 const optionHeight = 23.5;
 
 // TODO: refactor this
-export async function createSelect(selectOptions) {
+export async function createSelect(selectOptions: HTMLSelectElement) {
     const id = selectOptions.id;
-    let selectedOption = await getValue(id);
+    let selectedOption = (await getValue(id)) as string | null;
     if (!selectedOption) {
         const option = selectOptions.options[selectOptions.selectedIndex];
         selectedOption = option.text;
@@ -20,7 +20,7 @@ export async function createSelect(selectOptions) {
     let optionsHTML = '<div class="' + selectOptions.classList[0] + '">';
     optionsHTML += '<span class="custom-select-trigger">' + header + '</span>';
     optionsHTML += '<div class="custom-options"><div>';
-    for (const option of selectOptions.options) {
+    for (const option of Array.from(selectOptions.options)) {
         let dataValue = '';
         if (option.value != '') {
             dataValue = `data-value="${option.value}"`;
@@ -41,11 +41,14 @@ export async function createSelect(selectOptions) {
     selectOptions.remove();
     customSelect.innerHTML = selectOptions.outerHTML + optionsHTML;
 
-    const customOption = document.querySelectorAll(`#${id} .custom-option`);
+    const customOption = Array.from(document.querySelectorAll<HTMLElement>(`#${id} .custom-option`));
     for (const option of customOption) {
         if (option.dataset.value != '' && option.dataset.value == selectedOption) {
             option.classList.add('selected');
-            document.querySelector(`#${id} .custom-select-trigger`).textContent = option.textContent;
+            const trigger = document.querySelector<HTMLElement>(`#${id} .custom-select-trigger`);
+            if (trigger) {
+                trigger.textContent = option.textContent ?? '';
+            }
             break;
         } else if (option.textContent == selectedOption) {
             option.classList.add('selected');
@@ -53,14 +56,17 @@ export async function createSelect(selectOptions) {
         }
     }
 
-    const customOptions = document.querySelector(`#${id} .custom-options div`);
+    const customOptions = document.querySelector<HTMLElement>(`#${id} .custom-options div`);
+    if (!customOptions) {
+        return;
+    }
     if (customOption.length > visibleOptions) {
         customOptions.style.height = `${visibleOptions * optionHeight}px`;
     }
     customOptions.addEventListener(
         'mouseenter',
         () => {
-            customOptions.setAttribute('tabindex', -1);
+            customOptions.setAttribute('tabindex', '-1');
             customOptions.focus();
         },
         false,
@@ -85,37 +91,55 @@ export async function createSelect(selectOptions) {
         false,
     );
 
-    document.querySelector(`#${id} .custom-options`).addEventListener(
-        'click',
-        function (e) {
-            let value = e.target.textContent;
-            if (e.target.dataset.value) {
-                value += '#' + e.target.dataset.value;
-            }
-            setValue(id, value);
-            for (const option of customOption) {
-                if (/selected/.test(option.className)) {
-                    option.classList.remove('selected');
+    const customOptionsContainer = document.querySelector<HTMLElement>(`#${id} .custom-options`);
+    if (customOptionsContainer) {
+        customOptionsContainer.addEventListener(
+            'click',
+            function (event) {
+                const target = event.target as HTMLElement | null;
+                if (!target) {
+                    return;
                 }
-            }
-            e.target.classList.add('selected');
-            this.parentNode.classList.remove('opened');
-            document.querySelector(`#${id} .custom-select-trigger`).textContent = e.target.textContent;
-        },
-        false,
-    );
-
-    document.querySelector(`#${id} .custom-select`).addEventListener(
-        'click',
-        (e) => {
-            if (e.target.parentNode.classList.toggle('opened')) {
+                let value = target.textContent ?? '';
+                if (target.dataset.value) {
+                    value += '#' + target.dataset.value;
+                }
+                setValue(id, value);
                 for (const option of customOption) {
                     if (/selected/.test(option.className)) {
-                        option.scrollIntoView();
+                        option.classList.remove('selected');
                     }
                 }
-            }
-        },
-        false,
-    );
+                target.classList.add('selected');
+                const parent = (this as HTMLElement).parentElement;
+                if (parent) {
+                    parent.classList.remove('opened');
+                }
+                const trigger = document.querySelector<HTMLElement>(`#${id} .custom-select-trigger`);
+                if (trigger) {
+                    trigger.textContent = target.textContent ?? '';
+                }
+            },
+            false,
+        );
+    }
+
+    const customSelectElement = document.querySelector<HTMLElement>(`#${id} .custom-select`);
+    if (customSelectElement) {
+        customSelectElement.addEventListener(
+            'click',
+            (event) => {
+                const target = event.target as HTMLElement | null;
+                const parent = target?.parentElement;
+                if (parent?.classList.toggle('opened')) {
+                    for (const option of customOption) {
+                        if (/selected/.test(option.className)) {
+                            option.scrollIntoView();
+                        }
+                    }
+                }
+            },
+            false,
+        );
+    }
 }

@@ -3,9 +3,9 @@ import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd, skipOverlay } from 'extension/modules/ads';
 import { msg } from 'extension/modules/debug';
 
-let observer;
+let observer: MutationObserver | null = null;
 
-const tasks = {
+const tasks: Record<string, (value: boolean) => void> = {
     extension: (value) => {
         if (value) {
             connectObserver();
@@ -15,16 +15,17 @@ const tasks = {
     },
 };
 
-function performTask(id, value) {
+function performTask(id: string, value: boolean) {
     if (tasks[id]) {
         tasks[id](value);
     }
 }
 
 async function connectObserver() {
-    const callback = (mutations) => {
+    const callback = (mutations: MutationRecord[]) => {
         for (const mutation of mutations) {
-            const cssClass = mutation.target.className;
+            const target = mutation.target as HTMLElement;
+            const cssClass = target.className;
             if (typeof cssClass != 'string') {
                 continue;
             }
@@ -44,14 +45,16 @@ async function connectObserver() {
                 cssClass.includes('ytp-ad-text') ||
                 cssClass.includes('ytp-ad-player-overlay') ||
                 cssClass.includes('ytp-ad-simple-ad-badge') ||
-                (cssClass.includes('video-ads') && document.getElementsByClassName('video-ads')[0].innerHTML != '')
+                (cssClass.includes('video-ads') &&
+                    document.getElementsByClassName('video-ads')[0] &&
+                    (document.getElementsByClassName('video-ads')[0] as HTMLElement).innerHTML != '')
             ) {
                 skipAd();
             }
         }
     };
 
-    const playerAvailable = async () => {
+    const playerAvailable = async (): Promise<Element | null> => {
         return new Promise((resolve) => {
             const timer = setInterval(() => {
                 msg('Trying to connect the observer');
@@ -66,7 +69,7 @@ async function connectObserver() {
                 if (!player) {
                     clearInterval(timer);
                     msg('Observer error (time limit exceeded)');
-                    resolve();
+                    resolve(null);
                 }
             }, 10 * 1000);
         });
@@ -118,7 +121,7 @@ async function app() {
         restartExecution();
     }
 
-    onMessage((request) => {
+    onMessage((request: { id: string; value: any }) => {
         const id = request.id;
         if (id == 'analytics') {
             return;

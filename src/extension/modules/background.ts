@@ -1,11 +1,11 @@
 import { getLocalStorage, setLocalStorage } from 'utils/chrome/storage';
 import { onMessage } from 'utils/chrome/runtime';
 
-onMessage(async (request) => {
+onMessage(async (request: { id: string; value: any }) => {
     const id = request.id;
     const value = request.value;
     if (id == 'analytics') {
-        const data = await getLocalStorage(id);
+        const data = (await getLocalStorage(id)) as any;
         if (value.method) {
             if (value.status) {
                 data.methods[value.method].success += 1;
