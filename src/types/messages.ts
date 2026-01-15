@@ -1,6 +1,6 @@
 import type { AnalyticsUpdateValue } from 'types/analytics';
 
-export type OptionValue = boolean | string;
+export type OptionValue = number | boolean | string;
 
 export type AnalyticsMessage = {
   id: 'analytics';
