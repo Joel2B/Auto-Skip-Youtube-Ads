@@ -4,60 +4,60 @@ const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env, arg) => {
-    const mode = arg.mode;
+  const mode = arg.mode;
 
-    return {
-        mode: mode === 'production' ? mode : 'development',
-        devtool: mode === 'development' ? 'inline-source-map' : false,
-        entry: {
-            'pop-up': './src/pop-up/modules/script.ts',
-            background: './src/extension/modules/background.ts',
-            'content-script': './src/extension/modules/content-script.ts',
+  return {
+    mode: mode === 'production' ? mode : 'development',
+    devtool: mode === 'development' ? 'inline-source-map' : false,
+    entry: {
+      'pop-up': './src/pop-up/modules/script.ts',
+      background: './src/extension/modules/background.ts',
+      'content-script': './src/extension/modules/content-script.ts',
+    },
+    resolve: { extensions: ['.ts', '.js'], modules: [path.resolve(__dirname, 'src'), 'node_modules'] },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          exclude: /node_modules/,
+          use: 'ts-loader',
         },
-        resolve: { extensions: ['.ts', '.js'], modules: [path.resolve(__dirname, 'src'), 'node_modules'] },
-        module: {
-            rules: [
-                {
-                    test: /\.ts$/,
-                    exclude: /node_modules/,
-                    use: 'ts-loader',
-                },
-                {
-                    test: /\.(scss|css)$/,
-                    use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-                },
-            ],
+        {
+          test: /\.(scss|css)$/,
+          use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
         },
-        optimization: {
-            minimize: mode === 'production',
-        },
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: 'src/pop-up/index.html',
-                filename: 'pop-up.html',
-                minify: mode === 'production',
-                inject: false,
-                scriptLoading: 'blocking',
-            }),
-            new CopyPlugin({
-                patterns: [
-                    {
-                        from: './src/extension/manifest.json',
-                    },
-                    {
-                        from: './src/pop-up/img/',
-                        to: './img/',
-                    },
-                ],
-            }),
-            new MiniCssExtractPlugin({
-                filename: 'css/[name].css',
-            }),
+      ],
+    },
+    optimization: {
+      minimize: mode === 'production',
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: 'src/pop-up/index.html',
+        filename: 'pop-up.html',
+        minify: mode === 'production',
+        inject: false,
+        scriptLoading: 'blocking',
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './src/extension/manifest.json',
+          },
+          {
+            from: './src/pop-up/img/',
+            to: './img/',
+          },
         ],
-        output: {
-            filename: 'js/[name].js',
-            path: path.resolve(__dirname, 'dist'),
-            clean: true,
-        },
-    };
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'css/[name].css',
+      }),
+    ],
+    output: {
+      filename: 'js/[name].js',
+      path: path.resolve(__dirname, 'dist'),
+      clean: true,
+    },
+  };
 };

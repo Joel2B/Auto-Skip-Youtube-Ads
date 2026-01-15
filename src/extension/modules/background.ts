@@ -4,23 +4,23 @@ import type { Analytics } from 'types/analytics';
 import { isAnalyticsMessage } from 'types/messages';
 
 onMessage(async (request) => {
-    if (!isAnalyticsMessage(request)) {
-        return;
+  if (!isAnalyticsMessage(request)) {
+    return;
+  }
+  const id = request.id;
+  const value = request.value;
+  if (id == 'analytics') {
+    const data = (await getLocalStorage<Analytics>(id)) as Analytics;
+    if (typeof value === 'string') {
+      data[value] += 1;
+    } else {
+      const methodKey = String(value.method);
+      if (value.status) {
+        data.methods[methodKey].success += 1;
+      } else {
+        data.methods[methodKey].error += 1;
+      }
     }
-    const id = request.id;
-    const value = request.value;
-    if (id == 'analytics') {
-        const data = (await getLocalStorage<Analytics>(id)) as Analytics;
-        if (typeof value === 'string') {
-            data[value] += 1;
-        } else {
-            const methodKey = String(value.method);
-            if (value.status) {
-                data.methods[methodKey].success += 1;
-            } else {
-                data.methods[methodKey].error += 1;
-            }
-        }
-        setLocalStorage(id, data);
-    }
+    setLocalStorage(id, data);
+  }
 }, true);

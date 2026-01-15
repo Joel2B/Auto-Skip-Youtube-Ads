@@ -3,17 +3,17 @@ import type { AnalyticsUpdateValue } from 'types/analytics';
 export type OptionValue = boolean | string;
 
 export type AnalyticsMessage = {
-    id: 'analytics';
-    value: AnalyticsUpdateValue;
+  id: 'analytics';
+  value: AnalyticsUpdateValue;
 };
 
 export type OptionMessage = {
-    id: string;
-    value: OptionValue;
+  id: string;
+  value: OptionValue;
 };
 
 export type ExtensionMessage = AnalyticsMessage | OptionMessage;
 
 export const isAnalyticsMessage = (message: ExtensionMessage): message is AnalyticsMessage => {
-    return message.id === 'analytics';
+  return message.id === 'analytics';
 };
