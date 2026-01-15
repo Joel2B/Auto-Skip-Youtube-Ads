@@ -10,14 +10,154 @@ const delay = (ms: number) => {
   });
 };
 
+type DeepRoot = Document | ShadowRoot | Element;
+
+function isElement(node: unknown): node is Element {
+  return node instanceof Element;
+}
+
+function isParentNode(node: unknown): node is ParentNode {
+  return !!node && typeof (node as ParentNode).querySelector === 'function';
+}
+
+export function deepQuerySelector<T extends Element = Element>(selector: string, root: DeepRoot = document): T | null {
+  return deepQuery<T>(selector, { all: false, root }) as T | null;
+}
+
+export function deepQuerySelectorAll<T extends Element = Element>(selector: string, root: DeepRoot = document): T[] {
+  return deepQuery<T>(selector, { all: true, root }) as T[];
+}
+
+function deepQuery<T extends Element>(selector: string, opts: { all: boolean; root: DeepRoot }): T[] | T | null {
+  const { all, root } = opts;
+
+  const results: T[] = [];
+  const seenEl = new WeakSet<Element>();
+  const seenCtx = new WeakSet<object>();
+  const stack: DeepRoot[] = [root];
+
+  const pushCtx = (ctx: DeepRoot | null | undefined) => {
+    if (!ctx) return;
+    const key = ctx as unknown as object;
+    if (!seenCtx.has(key)) {
+      seenCtx.add(key);
+      stack.push(ctx);
+    }
+  };
+
+  while (stack.length) {
+    const ctx = stack.pop()!;
+
+    // 1) Buscar en este contexto
+    if (isParentNode(ctx)) {
+      try {
+        if (!all) {
+          const hit = ctx.querySelector(selector);
+          return (hit as T) ?? null;
+        } else {
+          ctx.querySelectorAll(selector).forEach((el) => {
+            if (!seenEl.has(el)) {
+              seenEl.add(el);
+              results.push(el as T);
+            }
+          });
+        }
+      } catch {
+        // selector inválido o contexto raro
+      }
+
+      // 2) Recorrer elementos para entrar a shadowRoots/iframes
+      let nodes: NodeListOf<Element> | null = null;
+      try {
+        nodes = ctx.querySelectorAll('*');
+      } catch {
+        nodes = null;
+      }
+
+      if (nodes) {
+        for (const el of nodes) {
+          // Shadow DOM
+          if ((el as Element).shadowRoot) pushCtx((el as Element).shadowRoot!);
+
+          // Iframes/frames (solo same-origin)
+          const tag = el.tagName;
+          if (tag === 'IFRAME' || tag === 'FRAME') {
+            const frame = el as HTMLIFrameElement | HTMLFrameElement;
+            try {
+              // cross-origin -> throw al acceder
+              const doc = frame.contentDocument;
+              if (doc) pushCtx(doc);
+            } catch {
+              // ignore cross-origin frames
+            }
+          }
+        }
+      }
+    } else if (isElement(ctx)) {
+      // Por si root llega como Element que no implementa ParentNode (raro)
+      if ((ctx as Element).shadowRoot) pushCtx((ctx as Element).shadowRoot!);
+    }
+  }
+
+  return all ? results : null;
+}
+
 async function m1() {
   if (!getOption('m1')) {
     return;
   }
 
-  const reportText = String(getOption('report-selection') ?? '').split('#')[0];
-  const confirmButton = document.querySelector('.ytp-ad-feedback-dialog-confirm-button') as HTMLElement | null;
-  if (!confirmButton) {
+  try {
+    const adInfoButton = document.querySelector('.ytp-ad-button-icon') as HTMLElement | null;
+
+    if (!adInfoButton) {
+      throw new Error();
+    }
+
+    adInfoButton.click();
+    await delay(2000);
+
+    const blockButton = deepQuerySelectorAll<HTMLElement | null>('button').find((el) =>
+      el.textContent.includes('Block'),
+    );
+
+    await delay(2000);
+
+    if (!blockButton) {
+      const closeButton = deepQuerySelector<HTMLElement>('button[aria-label="Close"]');
+      closeButton.click();
+
+      throw new Error();
+    }
+
+    blockButton.click();
+    await delay(1000);
+
+    const continueButton = deepQuerySelectorAll<HTMLElement | null>('[role="button"]').find((el) =>
+      el.textContent.includes('CONTINUE'),
+    );
+
+    if (!continueButton) {
+      throw new Error();
+    }
+
+    continueButton.click();
+    await delay(1000);
+
+    const closeButton = deepQuerySelectorAll<HTMLElement>('button[aria-label="Close"]').at(-1);
+    closeButton.click();
+
+    sendMessageBackground({
+      id: 'analytics',
+      value: {
+        method: 1,
+        status: 1,
+      },
+    });
+
+    debug('m1', 1);
+    methodExecuted = true;
+  } catch (e) {
     sendMessageBackground({
       id: 'analytics',
       value: {
@@ -25,49 +165,10 @@ async function m1() {
         status: 0,
       },
     });
+
     debug('m1', 0);
-    return;
+    console.error(e);
   }
-
-  const reportButton = document.querySelectorAll<HTMLElement>(
-    '.ytp-ad-clickable .ytp-ad-button-icon, .ytp-ad-info-dialog-mute-button',
-  );
-  if (reportButton.length != 2) {
-    return;
-  }
-  reportButton[0].click();
-  await delay(200);
-  reportButton[1].click();
-
-  let selected = false;
-  const options = Array.from(document.getElementsByClassName('ytp-ad-feedback-dialog-reason-text')) as HTMLElement[];
-  if (options.length == 0) {
-    return;
-  }
-  for (const option of options) {
-    if (option.textContent != reportText) {
-      continue;
-    }
-    selected = true;
-    option.click();
-    confirmButton.click();
-  }
-
-  if (!selected) {
-    const randOption = Math.floor(Math.random() * options.length);
-    options[randOption].click();
-    confirmButton.click();
-  }
-
-  sendMessageBackground({
-    id: 'analytics',
-    value: {
-      method: 1,
-      status: 1,
-    },
-  });
-  debug('m1', 1);
-  methodExecuted = true;
 }
 
 function m2() {
@@ -145,6 +246,7 @@ export async function skipAd() {
     return;
   }
   debug('skipAd');
+  await delay(1000);
 
   // Method 1 - report the video (inappropriate, repetitive, irrelevant)
   // this method only works in english language
