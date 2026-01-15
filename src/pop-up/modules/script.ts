@@ -2,11 +2,7 @@ import '../css/styles.scss';
 import { getLocalStorage, setLocalStorage } from 'utils/chrome/storage';
 import { createSelect } from 'pop-up/modules/selectOption';
 import { sendMessage } from 'utils/chrome/runtime';
-
-type Analytics = {
-    methods: Record<string, { error: number; success: number }>;
-    overlayAds: number;
-};
+import type { Analytics } from 'types/analytics';
 
 async function loadAnalytics() {
     let analytics = await getLocalStorage<Analytics>('analytics');

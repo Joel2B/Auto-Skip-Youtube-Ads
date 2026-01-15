@@ -1,7 +1,8 @@
 import { debug } from 'extension/modules/debug';
+import type { AnalyticsMessage, ExtensionMessage, OptionMessage } from 'types/messages';
 
 /* global chrome */
-export function onMessage(callback: (request: any) => void, keepAlive = false) {
+export function onMessage(callback: (request: ExtensionMessage) => void, keepAlive = false) {
     try {
         chrome.runtime.onMessage.addListener((request) => {
             debug('onMessage', request, keepAlive);
@@ -15,7 +16,7 @@ export function onMessage(callback: (request: any) => void, keepAlive = false) {
     }
 }
 
-export function sendMessage(value: any) {
+export function sendMessage(value: OptionMessage) {
     try {
         debug('sendMessage', value);
         const manifest = chrome.runtime.getManifest();
@@ -36,7 +37,7 @@ export function sendMessage(value: any) {
     }
 }
 
-export function sendMessageBackground(value: any) {
+export function sendMessageBackground(value: AnalyticsMessage) {
     try {
         debug('sendMessageBackground', value);
         chrome.runtime.sendMessage(value);

@@ -2,6 +2,8 @@ import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd, skipOverlay } from 'extension/modules/ads';
 import { msg } from 'extension/modules/debug';
+import { isAnalyticsMessage } from 'types/messages';
+import type { OptionValue } from 'types/messages';
 
 let observer: MutationObserver | null = null;
 
@@ -15,9 +17,11 @@ const tasks: Record<string, (value: boolean) => void> = {
     },
 };
 
-function performTask(id: string, value: boolean) {
-    if (tasks[id]) {
-        tasks[id](value);
+function performTask(id: string, value: OptionValue) {
+    const task = tasks[id];
+    
+    if (task && typeof value === 'boolean') {
+        task(value);
     }
 }
 
@@ -121,11 +125,11 @@ async function app() {
         restartExecution();
     }
 
-    onMessage((request: { id: string; value: any }) => {
-        const id = request.id;
-        if (id == 'analytics') {
+    onMessage((request) => {
+        if (isAnalyticsMessage(request)) {
             return;
         }
+        const id = request.id;
         const value = request.value;
         setOption(id, value);
         performTask(id, value);
