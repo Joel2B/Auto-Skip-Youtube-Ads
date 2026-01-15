@@ -1,4 +1,3 @@
-/* global chrome */
 export function setLocalStorage(key: string, value: unknown) {
   chrome.storage.local.set({
     [key]: value,

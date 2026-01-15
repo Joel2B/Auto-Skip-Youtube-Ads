@@ -1,7 +1,6 @@
 import { debug } from 'extension/modules/debug';
 import type { AnalyticsMessage, ExtensionMessage, OptionMessage } from 'types/messages';
 
-/* global chrome */
 export function onMessage(callback: (request: ExtensionMessage) => void, keepAlive = false) {
   try {
     chrome.runtime.onMessage.addListener((request) => {

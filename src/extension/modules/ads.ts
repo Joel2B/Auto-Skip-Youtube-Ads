@@ -2,14 +2,9 @@ import { getOption } from 'extension/modules/data';
 import { sendMessageBackground } from 'utils/chrome/runtime';
 import { debug } from 'extension/modules/debug';
 import { deepQuerySelector, deepQuerySelectorAll } from 'utils/query';
+import { delay } from 'utils/utils';
 
 let methodExecuted = false;
-
-const delay = (ms: number) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
 
 async function m1() {
   if (!getOption('m1')) {
@@ -159,7 +154,7 @@ export async function skipAd() {
 
   // Method 1 - report the video (inappropriate, repetitive, irrelevant)
   // this method only works in english language
-  m1();
+  await m1();
 
   // Method 2 - click the announcement skip button that appears after 5 seconds
   m2();
