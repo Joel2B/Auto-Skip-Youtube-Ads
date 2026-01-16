@@ -1,10 +1,9 @@
-import { debug } from 'extension/modules/debug';
 import type { AnalyticsMessage, ExtensionMessage, OptionMessage } from 'types/messages';
 
 export function onMessage(callback: (request: ExtensionMessage) => void, keepAlive = false) {
   try {
     chrome.runtime.onMessage.addListener((request) => {
-      debug('onMessage', request, keepAlive);
+      console.log('onMessage', request, keepAlive);
       callback(request);
 
       if (keepAlive) {
@@ -12,13 +11,13 @@ export function onMessage(callback: (request: ExtensionMessage) => void, keepAli
       }
     });
   } catch (error) {
-    debug(error);
+    console.error(error);
   }
 }
 
 export function sendMessage(value: OptionMessage) {
   try {
-    debug('sendMessage', value);
+    console.log('sendMessage', value);
     const manifest = chrome.runtime.getManifest();
 
     chrome.tabs.query(
@@ -34,15 +33,15 @@ export function sendMessage(value: OptionMessage) {
       },
     );
   } catch (error) {
-    debug(error);
+    console.error(error);
   }
 }
 
 export function sendMessageBackground(value: AnalyticsMessage) {
   try {
-    debug('sendMessageBackground', value);
+    console.log('sendMessageBackground', value);
     chrome.runtime.sendMessage(value);
   } catch (error) {
-    debug(error);
+    console.error(error);
   }
 }

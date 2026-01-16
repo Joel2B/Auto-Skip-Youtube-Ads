@@ -1,7 +1,6 @@
 import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd, skipSurvey } from 'extension/modules/ads';
-import { msg } from 'extension/modules/debug';
 import { isAnalyticsMessage } from 'types/messages';
 import type { OptionValue } from 'types/messages';
 
@@ -72,18 +71,21 @@ async function connectObserver() {
   const playerAvailable = async (): Promise<Element | null> => {
     return new Promise((resolve) => {
       const timer = setInterval(() => {
-        msg('Trying to connect the observer');
+        console.log('Trying to connect the observer');
         const player = document.querySelector('#movie_player');
+
         if (player) {
           clearInterval(timer);
           resolve(player);
         }
       }, 50);
+
       setTimeout(() => {
         const player = document.querySelector('#movie_player');
+
         if (!player) {
           clearInterval(timer);
-          msg('Observer error (time limit exceeded)');
+          console.log('Observer error (time limit exceeded)');
           resolve(null);
         }
       }, 10 * 1000);
@@ -103,7 +105,7 @@ async function connectObserver() {
 
   observer = new MutationObserver(callback);
   observer.observe(player, config);
-  msg('Observer connected');
+  console.log('Observer connected');
 }
 
 function disconnectObserver() {
@@ -112,12 +114,26 @@ function disconnectObserver() {
   }
 
   observer.disconnect();
-  msg('Observer disconnected');
+  console.warn('Observer disconnected');
+}
+
+function getUrl() {
+  const url = new URL(window.location.href);
+  const key = 'v';
+  const value = url.searchParams.get(key);
+
+  url.search = '';
+
+  if (value != null) {
+    url.searchParams.set(key, value);
+  }
+
+  return url.toString();
 }
 
 function restartExecution() {
   setInterval(() => {
-    const url = window.location.href;
+    const url = getUrl();
 
     if (getOption('curent-path') != url && url.includes('watch')) {
       if (observer) {
@@ -137,7 +153,9 @@ async function app() {
   await getAllOptions();
 
   if (!getOption('curent-path')) {
-    setOption('curent-path', window.location.href);
+    const url = getUrl();
+
+    setOption('curent-path', url);
     restartExecution();
   }
 

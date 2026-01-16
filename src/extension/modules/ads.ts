@@ -1,20 +1,23 @@
 import { getOption } from 'extension/modules/data';
 import { sendMessageBackground } from 'utils/chrome/runtime';
-import { debug } from 'extension/modules/debug';
 import { deepQuerySelector, deepQuerySelectorAll } from 'utils/query';
 import { delay, waitFor } from 'utils/utils';
-
-let methodExecuted = false;
 
 async function m1() {
   if (!getOption('m1')) {
     return;
   }
 
+  console.log('m1');
+
   try {
+    const video: HTMLVideoElement = document.querySelector('#movie_player video');
+    video.pause();
+
     const adInfoButton: HTMLElement | null = await waitFor(() => document.querySelector('.ytp-ad-button-icon'), {
-      timeoutMs: 2000,
+      timeoutMs: 4000,
       intervalMs: 100,
+      minMs: 2000,
     });
 
     if (!adInfoButton) {
@@ -23,24 +26,39 @@ async function m1() {
 
     adInfoButton.click();
 
-    const blockButton: HTMLElement = await waitFor(
-      () => deepQuerySelectorAll<HTMLElement | null>('button').find((el) => el.textContent.includes('Block')),
-      {
-        timeoutMs: 2000,
-        intervalMs: 200,
-      },
-    );
+    let retry = 0;
+    let blockButton: HTMLElement | null = null;
+
+    while (true) {
+      blockButton = await waitFor(
+        () =>
+          deepQuerySelectorAll<HTMLElement | null>('button').find(
+            (el) => el.textContent.includes('Block') || el.textContent.includes('Bloquear'),
+          ),
+        {
+          timeoutMs: 1000,
+          intervalMs: 200,
+        },
+      );
+
+      if (blockButton || retry == 5) break;
+
+      console.log(retry);
+      adInfoButton.click();
+
+      retry++;
+    }
 
     if (!blockButton) {
-      const closeButton: HTMLElement = await waitFor(
-        () => deepQuerySelectorAll<HTMLElement>('button[aria-label="Close"]').at(-1),
+      const closeButton = await waitFor(
+        () => deepQuerySelectorAll<HTMLElement | null>('button').find((el) => el.innerHTML.includes('jsname')),
         {
           timeoutMs: 2000,
           intervalMs: 100,
         },
       );
 
-      closeButton.click();
+      closeButton?.click();
       throw new Error();
     }
 
@@ -59,7 +77,7 @@ async function m1() {
     continueButton.click();
 
     const closeButton = await waitFor(
-      () => deepQuerySelectorAll<HTMLElement | null>('button[aria-label="Close"]').at(-1),
+      () => deepQuerySelectorAll<HTMLElement | null>('button').find((el) => el.innerHTML.includes('jsname')),
       {
         timeoutMs: 2000,
         intervalMs: 100,
@@ -78,9 +96,6 @@ async function m1() {
         status: 1,
       },
     });
-
-    debug('m1', 1);
-    methodExecuted = true;
   } catch (e) {
     sendMessageBackground({
       id: 'analytics',
@@ -90,49 +105,47 @@ async function m1() {
       },
     });
 
-    debug('m1', 0);
     console.error(e);
   }
 }
 
 function m2() {
-  if (!getOption('m2') || methodExecuted) {
-    return;
-  }
-
-  const adSkipButton = document.querySelector('.ytp-ad-skip-button') as HTMLElement | null;
-  const video = document.querySelector('video') as HTMLVideoElement | null;
-  if (!video || !adSkipButton) {
-    sendMessageBackground({
-      id: 'analytics',
-      value: {
-        method: 2,
-        status: 0,
-      },
-    });
-    debug('m2', 0);
-    return;
-  }
-
-  for (let i = 0; i < 5; i++) {
-    video.currentTime += 1;
-  }
-  adSkipButton.click();
-  methodExecuted = true;
-  sendMessageBackground({
-    id: 'analytics',
-    value: {
-      method: 2,
-      status: 1,
-    },
-  });
-  debug('m2', 1);
+  // if (!getOption('m2') || methodExecuted) {
+  //   return;
+  // }
+  // const adSkipButton = document.querySelector('.ytp-ad-skip-button') as HTMLElement | null;
+  // const video = document.querySelector('video') as HTMLVideoElement | null;
+  // if (!video || !adSkipButton) {
+  //   sendMessageBackground({
+  //     id: 'analytics',
+  //     value: {
+  //       method: 2,
+  //       status: 0,
+  //     },
+  //   });
+  //   return;
+  // }
+  // for (let i = 0; i < 5; i++) {
+  //   video.currentTime += 1;
+  // }
+  // adSkipButton.click();
+  // methodExecuted = true;
+  // sendMessageBackground({
+  //   id: 'analytics',
+  //   value: {
+  //     method: 2,
+  //     status: 1,
+  //   },
+  // });
+  // debug('m2', 1);
 }
 
 async function m3() {
   if (!getOption('m3')) {
     return;
   }
+
+  console.log('m3');
 
   try {
     await delay(1000);
@@ -169,8 +182,6 @@ async function m3() {
         status: 1,
       },
     });
-
-    debug('m3', 1);
   } catch (e) {
     sendMessageBackground({
       id: 'analytics',
@@ -180,7 +191,6 @@ async function m3() {
       },
     });
 
-    debug('m3', 0);
     console.error(e);
   }
 }
@@ -189,7 +199,8 @@ export async function skipAd() {
   if (!getOption('block-ads')) {
     return;
   }
-  debug('skipAd');
+
+  console.log('skipAd init');
 
   // Method 1 - report the video (inappropriate, repetitive, irrelevant)
   // this method only works in english language
@@ -208,7 +219,8 @@ export async function skipAd() {
   });
 
   if (!ad || ad.innerHTML != '') {
-    await skipAd();
+    // await skipAd(true);
+    return;
   }
 
   const closeButton = await waitFor(
@@ -233,7 +245,9 @@ export async function skipSurvey() {
   const answerButton = await waitFor(
     () =>
       deepQuerySelectorAll<HTMLElement | null>('[class="ytp-ad-survey-answer"]')
-        .filter((o) => o.innerHTML.toLowerCase().includes('awful'))
+        .filter(
+          (o) => o.innerHTML.toLowerCase().includes('awful') || o.innerHTML.toLowerCase().includes('very dissatisfied'),
+        )
         .at(-1),
     {
       timeoutMs: 4000,
