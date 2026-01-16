@@ -2,7 +2,7 @@ import { getOption } from 'extension/modules/data';
 import { sendMessageBackground } from 'utils/chrome/runtime';
 import { debug } from 'extension/modules/debug';
 import { deepQuerySelector, deepQuerySelectorAll } from 'utils/query';
-import { waitFor } from 'utils/utils';
+import { delay, waitFor } from 'utils/utils';
 
 let methodExecuted = false;
 
@@ -27,7 +27,7 @@ async function m1() {
       () => deepQuerySelectorAll<HTMLElement | null>('button').find((el) => el.textContent.includes('Block')),
       {
         timeoutMs: 2000,
-        intervalMs: 100,
+        intervalMs: 200,
       },
     );
 
@@ -65,8 +65,8 @@ async function m1() {
 
     continueButton.click();
 
-    const closeButton: HTMLElement = await waitFor(
-      () => deepQuerySelectorAll<HTMLElement>('button[aria-label="Close"]').at(-1),
+    const closeButton = await waitFor(
+      () => deepQuerySelectorAll<HTMLElement | null>('button[aria-label="Close"]').at(-1),
       {
         timeoutMs: 2000,
         intervalMs: 100,
@@ -74,7 +74,9 @@ async function m1() {
       },
     );
 
-    closeButton.click();
+    if (closeButton) {
+      closeButton.click();
+    }
 
     sendMessageBackground({
       id: 'analytics',
@@ -135,15 +137,17 @@ function m2() {
 }
 
 async function m3() {
-  if (!getOption('m3') || methodExecuted) {
+  if (!getOption('m3')) {
     return;
   }
 
   try {
-    const ad = deepQuerySelectorAll<HTMLElement>('.ytp-ad-module');
+    await delay(1000);
 
-    if (ad.length == 0) {
-      throw new Error();
+    const ad = deepQuerySelector<HTMLElement | null>('.ytp-ad-module');
+
+    if (!ad || ad.innerHTML == '') {
+      return;
     }
 
     const video: HTMLVideoElement | null = document.querySelector('video');
@@ -156,7 +160,7 @@ async function m3() {
       video.currentTime = video.duration;
     }
 
-    const adButton: HTMLElement = await waitFor(() => deepQuerySelector<HTMLElement>('.ytp-skip-ad-button'), {
+    const adButton = await waitFor(() => deepQuerySelector<HTMLElement | null>('.ytp-skip-ad-button'), {
       timeoutMs: 2000,
       intervalMs: 100,
     });
@@ -203,6 +207,29 @@ export async function skipAd() {
 
   // Method 3 - advance 5 seconds and force it to end
   await m3();
+
+  const ad: HTMLElement | null = await waitFor(() => deepQuerySelector<HTMLElement | null>('.ytp-ad-module'), {
+    timeoutMs: 4000,
+    intervalMs: 100,
+    minMs: 2000,
+  });
+
+  if (!ad || ad.innerHTML != '') {
+    await skipAd();
+  }
+
+  const closeButton = await waitFor(
+    () => deepQuerySelectorAll<HTMLElement | null>('button[aria-label="Close"]').at(-1),
+    {
+      timeoutMs: 2000,
+      intervalMs: 100,
+      minMs: 1000,
+    },
+  );
+
+  if (closeButton && closeButton.innerHTML.includes('svg')) {
+    closeButton.click();
+  }
 }
 
 export function skipOverlay() {

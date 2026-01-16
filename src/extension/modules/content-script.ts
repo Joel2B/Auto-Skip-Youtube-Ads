@@ -25,6 +25,8 @@ function performTask(id: string, value: OptionValue) {
   }
 }
 
+let lock = false;
+
 async function connectObserver() {
   const callback = (mutations: MutationRecord[]) => {
     for (const mutation of mutations) {
@@ -53,7 +55,21 @@ async function connectObserver() {
           document.getElementsByClassName('video-ads')[0] &&
           (document.getElementsByClassName('video-ads')[0] as HTMLElement).innerHTML != '')
       ) {
-        skipAd();
+        if (lock) {
+          return;
+        }
+
+        lock = true;
+
+        skipAd()
+          .catch(console.error)
+          .finally(() => {
+            setTimeout(() => {
+              lock = false;
+            }, 10000);
+          });
+
+        return;
       }
     }
   };
