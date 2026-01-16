@@ -4,6 +4,7 @@ import type { OptionValue } from 'types/messages';
 
 export function setValue(id: string, value: OptionValue) {
   setLocalStorage(id, value);
+
   sendMessage({
     id: id,
     value: value,

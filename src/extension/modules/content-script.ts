@@ -32,6 +32,7 @@ async function connectObserver() {
     for (const mutation of mutations) {
       const target = mutation.target as HTMLElement;
       const cssClass = target.className;
+
       if (typeof cssClass != 'string') {
         continue;
       }
@@ -96,6 +97,7 @@ async function connectObserver() {
   };
 
   const player = await playerAvailable();
+
   if (!player) {
     return;
   }
@@ -114,6 +116,7 @@ function disconnectObserver() {
   if (!observer) {
     return;
   }
+
   observer.disconnect();
   msg('Observer disconnected');
 }
@@ -121,12 +124,15 @@ function disconnectObserver() {
 function restartExecution() {
   setInterval(() => {
     const url = window.location.href;
+
     if (getOption('curent-path') != url && url.includes('watch')) {
       if (observer) {
         disconnectObserver();
       }
+
       connectObserver();
     }
+
     if (getOption('curent-path') != url) {
       setOption('curent-path', url);
     }
@@ -145,8 +151,10 @@ async function app() {
     if (isAnalyticsMessage(request)) {
       return;
     }
+
     const id = request.id;
     const value = request.value;
+
     setOption(id, value);
     performTask(id, value);
   });

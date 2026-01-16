@@ -6,6 +6,7 @@ export function onMessage(callback: (request: ExtensionMessage) => void, keepAli
     chrome.runtime.onMessage.addListener((request) => {
       debug('onMessage', request, keepAlive);
       callback(request);
+
       if (keepAlive) {
         return true;
       }
@@ -19,6 +20,7 @@ export function sendMessage(value: OptionMessage) {
   try {
     debug('sendMessage', value);
     const manifest = chrome.runtime.getManifest();
+
     chrome.tabs.query(
       {
         url: manifest.content_scripts[0].matches,
