@@ -46,18 +46,11 @@ async function m1() {
 
     blockButton.click();
 
-    const continueButton: HTMLElement = await waitFor(
-      () => deepQuerySelectorAll<HTMLElement | null>('[role="button"]').at(-1),
-      {
-        timeoutMs: 4000,
-        intervalMs: 100,
-        minMs: 2000,
-      },
-    );
-
-    console.warn(
-      deepQuerySelectorAll<HTMLElement | null>('[role="button"]').find((el) => el.textContent.includes('CONTINUE')),
-    );
+    const continueButton = await waitFor(() => deepQuerySelectorAll<HTMLElement | null>('[role="button"]').at(-1), {
+      timeoutMs: 4000,
+      intervalMs: 100,
+      minMs: 2000,
+    });
 
     if (!continueButton) {
       throw new Error();
@@ -232,17 +225,25 @@ export async function skipAd() {
   }
 }
 
-export function skipOverlay() {
+export async function skipSurvey() {
   if (!getOption('block-overlays-ads')) {
     return;
   }
-  debug('skipOverlay');
 
-  const closeButton = document.querySelector('.ytp-ad-overlay-close-button') as HTMLElement | null;
-  if (!closeButton) {
-    return;
-  }
-  closeButton.click();
+  const answerButton = await waitFor(
+    () =>
+      deepQuerySelectorAll<HTMLElement | null>('[class="ytp-ad-survey-answer"]')
+        .filter((o) => o.innerHTML.toLowerCase().includes('awful'))
+        .at(-1),
+    {
+      timeoutMs: 4000,
+      intervalMs: 100,
+      minMs: 2000,
+    },
+  );
+
+  answerButton?.click();
+
   sendMessageBackground({
     id: 'analytics',
     value: 'overlayAds',

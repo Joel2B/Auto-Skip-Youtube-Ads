@@ -1,6 +1,6 @@
 import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
-import { skipAd, skipOverlay } from 'extension/modules/ads';
+import { skipAd, skipSurvey } from 'extension/modules/ads';
 import { msg } from 'extension/modules/debug';
 import { isAnalyticsMessage } from 'types/messages';
 import type { OptionValue } from 'types/messages';
@@ -37,14 +37,8 @@ async function connectObserver() {
         continue;
       }
 
-      if (
-        cssClass.includes('ytp-ad-overlay-ad-info-dialog-container') ||
-        cssClass.includes('ytp-ad-overlay-container') ||
-        cssClass.includes('ytp-ad-overlay-slot') ||
-        cssClass.includes('ytp-ad-text-overlay') ||
-        cssClass.includes('ytp-ad-overlay-open')
-      ) {
-        skipOverlay();
+      if (cssClass.includes('ytp-ad-survey ')) {
+        skipSurvey();
         return;
       }
 
@@ -164,7 +158,6 @@ async function app() {
     return;
   }
 
-  // load only in videos
   if (!window.location.href.includes('watch')) {
     return;
   }
