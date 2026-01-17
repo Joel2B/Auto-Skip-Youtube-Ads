@@ -29,3 +29,15 @@ onMessage(async (request) => {
     setLocalStorage(id, data);
   }
 }, true);
+
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason !== 'install') return;
+
+  chrome.storage.local.set({
+    extension: true,
+    'block-ads': true,
+    'block-overlays-ads': true,
+    m1: true,
+    m3: false,
+  });
+});
