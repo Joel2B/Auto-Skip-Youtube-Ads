@@ -26,48 +26,35 @@ function performTask(id: string, value: OptionValue) {
 
 let lock = false;
 
-async function connectObserver() {
-  const callback = (mutations: MutationRecord[]) => {
-    for (const mutation of mutations) {
-      const target = mutation.target as HTMLElement;
-      const cssClass = target.className;
+function detectAd() {
+  if (lock) {
+    return;
+  }
 
-      if (typeof cssClass != 'string') {
-        continue;
-      }
+  lock = true;
 
-      if (cssClass.includes('ytp-ad-survey ')) {
-        skipSurvey();
+  setTimeout(async () => {
+    try {
+      const ad = document.querySelector('.video-ads');
+
+      if (document.querySelector('.ytp-ad-survey')) {
+        await skipSurvey();
         return;
       }
 
-      if (
-        cssClass.includes('ytp-ad-text') ||
-        cssClass.includes('ytp-ad-player-overlay') ||
-        cssClass.includes('ytp-ad-simple-ad-badge') ||
-        (cssClass.includes('video-ads') &&
-          document.getElementsByClassName('video-ads')[0] &&
-          (document.getElementsByClassName('video-ads')[0] as HTMLElement).innerHTML != '')
-      ) {
-        if (lock) {
-          return;
-        }
-
-        lock = true;
-
-        skipAd()
-          .catch(console.error)
-          .finally(() => {
-            setTimeout(() => {
-              lock = false;
-            }, 10000);
-          });
-
-        return;
+      if (ad && ad.innerHTML !== '') {
+        await skipAd();
       }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      lock = false;
+      console.log('unlock');
     }
-  };
+  });
+}
 
+async function connectObserver() {
   const playerAvailable = async (): Promise<Element | null> => {
     return new Promise((resolve) => {
       const timer = setInterval(() => {
@@ -98,11 +85,13 @@ async function connectObserver() {
     return;
   }
 
-  const config = {
+  const config: MutationObserverInit = {
     subtree: true,
     childList: true,
+    attributes: true,
   };
 
+  const callback = () => detectAd();
   observer = new MutationObserver(callback);
   observer.observe(player, config);
   console.log('Observer connected');

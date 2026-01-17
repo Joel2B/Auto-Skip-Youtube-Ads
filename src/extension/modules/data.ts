@@ -12,5 +12,5 @@ export function setOption(id: string, value: OptionValue) {
 }
 
 export async function getAllOptions() {
-  optionsPool = (await getAllLocalStorage()) as Record<string, unknown>;
+  optionsPool = await getAllLocalStorage();
 }
