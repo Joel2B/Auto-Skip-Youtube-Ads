@@ -8,7 +8,7 @@ const status = {
   skip: false,
 };
 
-async function m1() {
+async function useBlockButton() {
   if (!getOption('m1') || status.block) {
     return;
   }
@@ -135,38 +135,7 @@ async function m1() {
   }
 }
 
-function m2() {
-  // if (!getOption('m2') || methodExecuted) {
-  //   return;
-  // }
-  // const adSkipButton = document.querySelector('.ytp-ad-skip-button') as HTMLElement | null;
-  // const video = document.querySelector('video') as HTMLVideoElement | null;
-  // if (!video || !adSkipButton) {
-  //   sendMessageBackground({
-  //     id: 'analytics',
-  //     value: {
-  //       method: 2,
-  //       status: 0,
-  //     },
-  //   });
-  //   return;
-  // }
-  // for (let i = 0; i < 5; i++) {
-  //   video.currentTime += 1;
-  // }
-  // adSkipButton.click();
-  // methodExecuted = true;
-  // sendMessageBackground({
-  //   id: 'analytics',
-  //   value: {
-  //     method: 2,
-  //     status: 1,
-  //   },
-  // });
-  // debug('m2', 1);
-}
-
-async function m3() {
+async function advanceSkip() {
   if (!getOption('m3') || status.skip) {
     return;
   }
@@ -230,39 +199,8 @@ export async function skipAd() {
 
   console.log('skipAd init');
 
-  // Method 1 - report the video (inappropriate, repetitive, irrelevant)
-  // this method only works in english language
-  await m1();
-
-  // Method 2 - click the announcement skip button that appears after 5 seconds
-  m2();
-
-  // Method 3 - advance 5 seconds and force it to end
-  await m3();
-
-  // const ad: HTMLElement | null = await waitFor(() => deepQuerySelector<HTMLElement | null>('.ytp-ad-module'), {
-  //   timeoutMs: 4000,
-  //   intervalMs: 100,
-  //   minMs: 2000,
-  // });
-
-  // if (!ad || ad.innerHTML != '') {
-  //   // await skipAd(true);
-  //   return;
-  // }
-
-  // const closeButton = await waitFor(
-  //   () => deepQuerySelectorAll<HTMLElement | null>('button[aria-label="Close"]').at(-1),
-  //   {
-  //     timeoutMs: 2000,
-  //     intervalMs: 100,
-  //     minMs: 1000,
-  //   },
-  // );
-
-  // if (closeButton && closeButton.innerHTML.includes('svg')) {
-  //   closeButton.click();
-  // }
+  await useBlockButton();
+  await advanceSkip();
 }
 
 export async function skipSurvey() {
