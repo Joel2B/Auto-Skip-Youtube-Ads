@@ -14,10 +14,6 @@ async function loadAnalytics() {
           error: 0,
           success: 0,
         },
-        2: {
-          error: 0,
-          success: 0,
-        },
         3: {
           error: 0,
           success: 0,
@@ -68,6 +64,7 @@ async function loadAnalytics() {
     overlayAdsElement.textContent = String(analytics.overlayAds);
   }
 }
+
 async function app() {
   const selectOptions = document.querySelectorAll<HTMLSelectElement>('.custom-select');
   const inputs = document.querySelectorAll<HTMLInputElement>('.tab-content input.cmn-toggle');
@@ -121,7 +118,7 @@ async function app() {
 
   for (const input of Array.from(inputs)) {
     const id = input.id;
-    let value = (await getLocalStorage(id)) as boolean | null;
+    let value: boolean | null = await getLocalStorage(id);
 
     if (value == null) {
       value = true;

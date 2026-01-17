@@ -12,7 +12,7 @@ onMessage(async (request) => {
   const value = request.value;
 
   if (id == 'analytics') {
-    const data = (await getLocalStorage<Analytics>(id)) as Analytics;
+    const data: Analytics = await getLocalStorage<Analytics>(id);
 
     if (typeof value === 'string') {
       data[value] += 1;
