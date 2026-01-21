@@ -19,7 +19,7 @@ async function loadAnalytics() {
           success: 0,
         },
       },
-      overlayAds: 0,
+      surveys: 0,
     };
 
     setLocalStorage('analytics', analytics);
@@ -58,10 +58,10 @@ async function loadAnalytics() {
     }
   }
 
-  const overlayAdsElement = document.getElementById('overlayAds');
+  const surveys = document.getElementById('surveys');
 
-  if (overlayAdsElement) {
-    overlayAdsElement.textContent = String(analytics.overlayAds);
+  if (surveys) {
+    surveys.textContent = String(analytics.surveys);
   }
 }
 

@@ -33,55 +33,25 @@
               <div class="tab-pane active" id="home">
                 <div class="option">
                   <div class="title">
-                    <p>Activate extension</p>
-                  </div>
-                  <div class="switch">
-                    <input id="extension" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
-                    <label for="extension"></label>
-                  </div>
-                </div>
-                <hr />
-                <div class="option">
-                  <div class="title">
-                    <p>Block video ads</p>
-                  </div>
-                  <div class="switch">
-                    <input id="block-ads" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
-                    <label for="block-ads"></label>
-                  </div>
-                </div>
-                <hr />
-                <div class="option">
-                  <div class="title">
-                    <p>Block video overlay ads</p>
-                  </div>
-                  <div class="switch">
-                    <input id="block-overlays-ads" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
-                    <label for="block-overlays-ads"></label>
-                  </div>
-                </div>
-                <hr />
-                <div class="option">
-                  <div class="title">
-                    <p>Auto click block</p>
+                    <p>Click block</p>
                   </div>
                   <div class="switch">
                     <input id="m1" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
                     <label for="m1"></label>
                   </div>
                 </div>
-                <div class="option option-select">
+                <!-- <div class="option option-select">
                   <div>Report as -></div>
                   <select name="report" id="report-selection" class="custom-select" placeholder="Repetitive">
                     <option>Repetitive</option>
                     <option>Irrelevant</option>
                     <option>Inappropriate</option>
                   </select>
-                </div>
+                </div> -->
                 <hr />
                 <div class="option">
                   <div class="title">
-                    <p>Auto click skip</p>
+                    <p>Skip video</p>
                   </div>
                   <div class="switch">
                     <input id="m3" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
@@ -89,6 +59,15 @@
                   </div>
                 </div>
                 <hr />
+                <div class="option">
+                  <div class="title">
+                    <p>Skip survey</p>
+                  </div>
+                  <div class="switch">
+                    <input id="skip-survey" class="cmn-toggle cmn-toggle-round-flat" type="checkbox" />
+                    <label for="skip-survey"></label>
+                  </div>
+                </div>
               </div>
               <div class="tab-pane" id="analytics">
                 <div class="analytics">
@@ -120,8 +99,8 @@
                     <div class="others">
                       <hr />
                       <div class="overlay-ads">
-                        <div>Overlay ads:</div>
-                        <div id="overlayAds">0</div>
+                        <div>Surveys:</div>
+                        <div id="surveys">0</div>
                       </div>
                       <hr />
                     </div>

@@ -135,10 +135,8 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason !== 'install') return;
 
   chrome.storage.local.set({
-    extension: true,
-    'block-ads': true,
-    'block-overlays-ads': true,
-    m1: true,
-    m3: false,
+    'skip-survey': true,
+    m1: false,
+    m3: true,
   });
 });

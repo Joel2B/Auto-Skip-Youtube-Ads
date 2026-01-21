@@ -11,10 +11,6 @@ export const status = {
 };
 
 export async function skipAd() {
-  if (!getOption('block-ads')) {
-    return;
-  }
-
   console.log('skipAd init');
 
   await useBlockButton();
@@ -22,7 +18,7 @@ export async function skipAd() {
 }
 
 export async function skipSurvey() {
-  if (!getOption('block-overlays-ads')) {
+  if (!getOption('skip-survey')) {
     return;
   }
 
@@ -44,6 +40,6 @@ export async function skipSurvey() {
 
   sendMessageBackground({
     id: 'analytics',
-    value: 'overlayAds',
+    value: 'surveys',
   });
 }

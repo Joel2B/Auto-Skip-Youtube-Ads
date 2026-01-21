@@ -2,28 +2,8 @@ import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd, skipSurvey } from 'extension/modules/ads';
 import { isAnalyticsMessage, isDebuggerClickMessage } from 'types/messages';
-import type { OptionValue } from 'types/messages';
 
 let observer: MutationObserver | null = null;
-
-const tasks: Record<string, (value: boolean) => void> = {
-  extension: (value) => {
-    if (value) {
-      connectObserver();
-    } else {
-      disconnectObserver();
-    }
-  },
-};
-
-function performTask(id: string, value: OptionValue) {
-  const task = tasks[id];
-
-  if (task && typeof value === 'boolean') {
-    task(value);
-  }
-}
-
 let lock = false;
 
 function detectAd() {
@@ -54,6 +34,10 @@ function detectAd() {
 }
 
 async function connectObserver() {
+  if (observer) {
+    return;
+  }
+
   const playerAvailable = async (): Promise<Element | null> => {
     return new Promise((resolve) => {
       const timer = setInterval(() => {
@@ -102,7 +86,9 @@ function disconnectObserver() {
   }
 
   observer.disconnect();
-  console.warn('Observer disconnected');
+  observer = null;
+
+  console.log('Observer disconnected');
 }
 
 function getUrl() {
@@ -156,13 +142,13 @@ async function app() {
     const value = request.value;
 
     setOption(id, value);
-    performTask(id, value);
-  });
 
-  const extension = getOption('extension');
-  if (!extension) {
-    return;
-  }
+    if (getOption('m1') || getOption('m3')) {
+      connectObserver();
+    } else {
+      disconnectObserver();
+    }
+  });
 
   if (!window.location.href.includes('watch')) {
     return;

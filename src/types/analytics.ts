@@ -8,7 +8,7 @@ export type AnalyticsMethodStats = {
 
 export type Analytics = {
   methods: Record<string, AnalyticsMethodStats>;
-  overlayAds: number;
+  surveys: number;
 };
 
 export type AnalyticsMethodUpdate = {
@@ -16,4 +16,4 @@ export type AnalyticsMethodUpdate = {
   status: AnalyticsStatus;
 };
 
-export type AnalyticsUpdateValue = AnalyticsMethodUpdate | 'overlayAds';
+export type AnalyticsUpdateValue = AnalyticsMethodUpdate | 'surveys';
