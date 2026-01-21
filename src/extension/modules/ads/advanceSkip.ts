@@ -14,11 +14,11 @@ export async function advanceSkip() {
   try {
     await delay(1000);
 
-    const ad = deepQuerySelectorAll<HTMLElement | null>('.ytp-ad-module').at(-1);
+    const ad = deepQuerySelectorAll<HTMLElement | null>('.ytp-ad-module');
 
     console.log(ad);
 
-    if (!ad || ad.innerHTML == '') {
+    if (!ad || ad.every((el) => el.innerHTML == '')) {
       return;
     }
 
