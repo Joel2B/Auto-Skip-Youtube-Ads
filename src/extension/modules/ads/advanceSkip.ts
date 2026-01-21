@@ -9,18 +9,22 @@ export async function advanceSkip() {
     return;
   }
 
-  console.log('m3');
+  console.log('advanceSkip');
 
   try {
     await delay(1000);
 
     const ad = deepQuerySelectorAll<HTMLElement | null>('.ytp-ad-module').at(-1);
 
+    console.log(ad);
+
     if (!ad || ad.innerHTML == '') {
       return;
     }
 
     const video: HTMLVideoElement | null = document.querySelector('video');
+
+    console.log(video);
 
     if (video && isFinite(video.duration)) {
       for (let i = 0; i < 5; i++) {
