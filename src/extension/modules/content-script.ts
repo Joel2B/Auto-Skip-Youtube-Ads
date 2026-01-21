@@ -49,7 +49,6 @@ function detectAd() {
       console.error(e);
     } finally {
       lock = false;
-      console.log('unlock');
     }
   });
 }

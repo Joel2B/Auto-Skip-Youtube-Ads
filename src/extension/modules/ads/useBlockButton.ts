@@ -9,7 +9,7 @@ export async function useBlockButton() {
     return;
   }
 
-  console.log('m1');
+  console.log('useBlockButton');
 
   try {
     const video: HTMLVideoElement = document.querySelector('#movie_player video');
@@ -54,8 +54,8 @@ export async function useBlockButton() {
 
     const blockButton = await waitFor(
       () =>
-        deepQuerySelectorAll<HTMLElement | null>('button').find(
-          (el) => el.textContent.includes('Block') || el.textContent.includes('Bloquear'),
+        deepQuerySelectorAll<HTMLElement | null>('button, [role="button"]').find((el) =>
+          [el.textContent.toLowerCase()].some((el) => el.includes('block') || el.includes('bloquear')),
         ),
       {
         timeoutMs: 1000,
@@ -82,11 +82,17 @@ export async function useBlockButton() {
 
     blockButton.click();
 
-    const continueButton = await waitFor(() => deepQuerySelectorAll<HTMLElement | null>('[role="button"]').at(-1), {
-      timeoutMs: 4000,
-      intervalMs: 100,
-      minMs: 2000,
-    });
+    const continueButton = await waitFor(
+      () =>
+        deepQuerySelectorAll<HTMLElement | null>('button, [role="button"]').find((el) =>
+          [el.textContent.toLowerCase()].some((el) => el.includes('continue') || el.includes('continuar')),
+        ),
+      {
+        timeoutMs: 4000,
+        intervalMs: 100,
+        minMs: 2000,
+      },
+    );
 
     console.log(continueButton);
 
