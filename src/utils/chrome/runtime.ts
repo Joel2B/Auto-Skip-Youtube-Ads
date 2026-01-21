@@ -1,10 +1,13 @@
-import type { AnalyticsMessage, ExtensionMessage, OptionMessage } from 'types/messages';
+import type { ExtensionMessage, OptionMessage } from 'types/messages';
 
-export function onMessage(callback: (request: ExtensionMessage) => void, keepAlive = false) {
+export function onMessage(
+  callback: (request: ExtensionMessage, sender?: chrome.runtime.MessageSender) => void,
+  keepAlive = false,
+) {
   try {
-    chrome.runtime.onMessage.addListener((request) => {
+    chrome.runtime.onMessage.addListener((request, sender) => {
       console.log('onMessage', request, keepAlive);
-      callback(request);
+      callback(request, sender);
 
       if (keepAlive) {
         return true;
@@ -37,7 +40,7 @@ export function sendMessage(value: OptionMessage) {
   }
 }
 
-export function sendMessageBackground(value: AnalyticsMessage) {
+export function sendMessageBackground(value: ExtensionMessage) {
   try {
     console.log('sendMessageBackground', value);
     chrome.runtime.sendMessage(value);

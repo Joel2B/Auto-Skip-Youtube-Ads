@@ -1,7 +1,7 @@
 import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd, skipSurvey } from 'extension/modules/ads';
-import { isAnalyticsMessage } from 'types/messages';
+import { isAnalyticsMessage, isDebuggerClickMessage } from 'types/messages';
 import type { OptionValue } from 'types/messages';
 
 let observer: MutationObserver | null = null;
@@ -148,7 +148,7 @@ async function app() {
   }
 
   onMessage((request) => {
-    if (isAnalyticsMessage(request)) {
+    if (isAnalyticsMessage(request) || isDebuggerClickMessage(request)) {
       return;
     }
 

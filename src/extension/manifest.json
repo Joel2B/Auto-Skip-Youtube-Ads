@@ -21,7 +21,7 @@
   "background": {
     "service_worker": "js/background.js"
   },
-  "permissions": ["activeTab", "storage", "tabs", "scripting"],
+  "permissions": ["activeTab", "storage", "tabs", "scripting", "debugger"],
   "host_permissions": ["*://*.youtube.com/*"],
   "manifest_version": 3
 }

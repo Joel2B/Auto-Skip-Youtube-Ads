@@ -41,7 +41,16 @@ export async function advanceSkip() {
       intervalMs: 100,
     });
 
-    adButton?.click();
+    if (adButton) {
+      const rect = adButton.getBoundingClientRect();
+      const x = Math.max(0, Math.round(rect.left + rect.width / 2));
+      const y = Math.max(0, Math.round(rect.top + rect.height / 2));
+
+      sendMessageBackground({
+        id: 'debugger-click',
+        value: { x, y },
+      });
+    }
 
     sendMessageBackground({
       id: 'analytics',
