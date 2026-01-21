@@ -1,7 +1,8 @@
 import { onMessage } from 'utils/chrome/runtime';
 import { setOption, getAllOptions, getOption } from 'extension/modules/data';
-import { skipAd, skipSurvey } from 'extension/modules/ads';
+import { skipAd } from 'extension/modules/ads';
 import { isAnalyticsMessage, isDebuggerClickMessage } from 'types/messages';
+import { skipSurvey } from './ads/skipSurvey';
 
 let observer: MutationObserver | null = null;
 let lock = false;
