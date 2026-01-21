@@ -99,6 +99,64 @@ async function dispatchDebuggerClick(point: { x: number; y: number }, senderTabI
   }
 }
 
+function getContentScriptFiles(): string[] {
+  const manifest = chrome.runtime.getManifest();
+  return manifest.content_scripts?.[0]?.js ?? [];
+}
+
+async function injectContentScripts(tabId: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const files = getContentScriptFiles();
+
+    if (!files.length) {
+      console.warn('injectContentScripts skipped: missing content script');
+      resolve(false);
+      return;
+    }
+
+    chrome.scripting.executeScript(
+      {
+        target: { tabId },
+        files,
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.warn('injectContentScripts failed:', chrome.runtime.lastError.message);
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      },
+    );
+  });
+}
+
+function reinjectContentScripts() {
+  const manifest = chrome.runtime.getManifest();
+  const matches = manifest.content_scripts?.[0]?.matches;
+
+  if (!matches?.length) {
+    console.warn('reinjectContentScripts skipped: missing matches');
+    return;
+  }
+
+  chrome.tabs.query({ url: matches }, (tabs) => {
+    if (chrome.runtime.lastError) {
+      console.warn('reinjectContentScripts query failed:', chrome.runtime.lastError.message);
+      return;
+    }
+
+    for (const tab of tabs) {
+      if (tab.id == null) {
+        continue;
+      }
+
+      void injectContentScripts(tab.id);
+    }
+  });
+}
+
 onMessage(async (request, sender) => {
   if (isDebuggerClickMessage(request)) {
     await dispatchDebuggerClick(request.value, sender?.tab?.id);
@@ -132,11 +190,19 @@ onMessage(async (request, sender) => {
 }, true);
 
 chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason !== 'install') return;
+  if (details.reason === 'install') {
+    chrome.storage.local.set({
+      'skip-survey': true,
+      m1: false,
+      m3: true,
+    });
+  }
 
-  chrome.storage.local.set({
-    'skip-survey': true,
-    m1: false,
-    m3: true,
-  });
+  if (details.reason === 'install' || details.reason === 'update') {
+    reinjectContentScripts();
+  }
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  reinjectContentScripts();
 });
