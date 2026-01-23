@@ -3,7 +3,6 @@ import { advanceSkip } from './ads/advanceSkip';
 
 export const status = {
   block: false,
-  skip: false,
 };
 
 export async function skipAd() {
@@ -11,4 +10,6 @@ export async function skipAd() {
 
   await useBlockButton();
   await advanceSkip();
+
+  status.block = false;
 }

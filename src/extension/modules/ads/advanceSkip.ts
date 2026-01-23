@@ -2,18 +2,15 @@ import { getOption } from 'extension/modules/data';
 import { sendMessageBackground } from 'utils/chrome/runtime';
 import { deepQuerySelectorAll } from 'utils/query';
 import { delay, waitFor } from 'utils/utils';
-import { status } from 'extension/modules/ads';
 
 export async function advanceSkip() {
-  if (!getOption('m3') || status.skip) {
+  if (!getOption('m3')) {
     return;
   }
 
   console.log('advanceSkip');
 
   try {
-    await delay(1000);
-
     const ad = deepQuerySelectorAll<HTMLElement | null>('.ytp-ad-module');
 
     console.log(ad);
@@ -27,30 +24,33 @@ export async function advanceSkip() {
     console.log(video);
 
     if (video && isFinite(video.duration)) {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 3; i++) {
         video.currentTime += 1;
+        await delay(100);
       }
 
       video.currentTime = video.duration;
     }
-
-    await delay(500);
 
     const adButton = await waitFor(() => deepQuerySelectorAll<HTMLElement | null>('.ytp-skip-ad-button').at(-1), {
       timeoutMs: 2000,
       intervalMs: 100,
     });
 
-    if (adButton) {
-      const rect = adButton.getBoundingClientRect();
-      const x = Math.max(0, Math.round(rect.left + rect.width / 2));
-      const y = Math.max(0, Math.round(rect.top + rect.height / 2));
+    console.log(adButton);
 
-      sendMessageBackground({
-        id: 'debugger-click',
-        value: { x, y },
-      });
+    if (!adButton) {
+      return;
     }
+
+    const rect = adButton.getBoundingClientRect();
+    const x = Math.max(0, Math.round(rect.left + rect.width / 2));
+    const y = Math.max(0, Math.round(rect.top + rect.height / 2));
+
+    sendMessageBackground({
+      id: 'debugger-click',
+      value: { x, y },
+    });
 
     sendMessageBackground({
       id: 'analytics',
@@ -60,8 +60,6 @@ export async function advanceSkip() {
       },
     });
   } catch (e) {
-    status.skip = true;
-
     sendMessageBackground({
       id: 'analytics',
       value: {
