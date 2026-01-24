@@ -3,8 +3,11 @@ import { setOption, getAllOptions, getOption } from 'extension/modules/data';
 import { skipAd } from 'extension/modules/ads';
 import { isAnalyticsMessage, isDebuggerClickMessage } from 'types/messages';
 import { skipSurvey } from './ads/skipSurvey';
+import { deepQuerySelectorAll } from 'utils/query';
+import { delay } from 'utils/utils';
 
 let observer: MutationObserver | null = null;
+let interval: NodeJS.Timeout | null = null;
 let lock = false;
 
 function detectAd() {
@@ -149,6 +152,12 @@ async function app() {
     } else {
       disconnectObserver();
     }
+
+    if (getOption('experimental')) {
+      runInterval();
+    } else {
+      stopInterval();
+    }
   });
 
   if (!window.location.href.includes('watch')) {
@@ -156,6 +165,52 @@ async function app() {
   }
 
   connectObserver();
+}
+
+function runInterval() {
+  if (interval || !getOption('experimental')) return;
+
+  interval = setInterval(async () => {
+    const containers = deepQuerySelectorAll<HTMLElement>('.ytd-popup-container').filter(
+      (o) => o.innerHTML != '' && !o.getAttribute('aria-hidden') && o.getAttribute('role'),
+    );
+
+    for (const container of containers) {
+      if (container.innerHTML.toLocaleLowerCase().includes('video paused')) {
+        const button = container.querySelector('button');
+        console.log(button);
+        button?.click();
+      }
+
+      if (container.querySelector('img')) {
+        const button = container.querySelector('button svg');
+        const svg = button.closest('button');
+        console.log(button, svg);
+
+        if (svg) {
+          svg.click();
+
+          const player: HTMLVideoElement = document.querySelector('#movie_player video');
+
+          if (player && !player.paused) {
+            await delay(500);
+            player.play();
+          }
+        }
+      }
+    }
+  }, 100);
+
+  console.log('run interval');
+}
+
+function stopInterval() {
+  if (!interval) return;
+
+  clearInterval(interval);
+  interval = null;
+
+  console.log('stop interval');
 }
 
 app();

@@ -195,6 +195,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       'skip-survey': true,
       m1: false,
       m3: true,
+      experimental: false,
     });
   }
 
