@@ -177,12 +177,14 @@ function runInterval() {
     );
 
     for (const container of containers) {
+      // modal video paused
       if (container.innerHTML.toLocaleLowerCase().includes('video paused')) {
         const button = container.querySelector('button');
         console.log(button);
         button?.click();
       }
 
+      // modal ad blocker
       if (container.querySelector('img')) {
         const svg = container.querySelector('button svg');
         const button = svg.closest('button');
