@@ -165,6 +165,7 @@ async function app() {
   }
 
   connectObserver();
+  runInterval();
 }
 
 function runInterval() {
@@ -183,19 +184,26 @@ function runInterval() {
       }
 
       if (container.querySelector('img')) {
-        const button = container.querySelector('button svg');
-        const svg = button.closest('button');
+        const svg = container.querySelector('button svg');
+        const button = svg.closest('button');
         console.log(button, svg);
 
-        if (svg) {
-          svg.click();
+        if (!button) {
+          continue;
+        }
 
-          const player: HTMLVideoElement = document.querySelector('#movie_player video');
+        button.click();
 
-          if (player && !player.paused) {
-            await delay(500);
-            player.play();
-          }
+        const player: HTMLVideoElement = document.querySelector('#movie_player video');
+
+        if (!player) {
+          continue;
+        }
+
+        await delay(500);
+
+        if (player.paused) {
+          player.play();
         }
       }
     }
