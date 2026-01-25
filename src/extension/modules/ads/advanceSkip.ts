@@ -19,6 +19,10 @@ function getBufferRemaining(media: HTMLVideoElement) {
   return 0;
 }
 
+function isAdsEmpty(ads: HTMLElement[] | null): boolean {
+  return !ads || ads.length === 0 || ads.every((el) => el.innerHTML.trim() === '');
+}
+
 export async function advanceSkip() {
   if (!getOption('m3')) {
     return;
@@ -28,15 +32,13 @@ export async function advanceSkip() {
 
   try {
     const ad = deepQuerySelectorAll<HTMLElement | null>('.ytp-ad-module');
-
     console.log(ad);
 
-    if (!ad || ad.every((el) => el.innerHTML == '')) {
+    if (isAdsEmpty(ad)) {
       return;
     }
 
     const video: HTMLVideoElement | null = document.querySelector('video');
-
     console.log(video);
 
     const ready = await waitFor(() => (video.readyState >= 3 && Number.isFinite(video.duration) ? true : null), {
@@ -44,7 +46,7 @@ export async function advanceSkip() {
       intervalMs: 100,
     });
 
-    if (ready) {
+    if (ready && !isAdsEmpty(ad)) {
       const bufferRemaining = getBufferRemaining(video);
       console.log(video.currentTime, bufferRemaining, video.duration);
 
