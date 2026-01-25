@@ -8,21 +8,25 @@ export async function skipSurvey() {
     return;
   }
 
-  const answerButton = await waitFor(
-    () =>
-      deepQuerySelectorAll<HTMLElement | null>('[class="ytp-ad-survey-answer"]')
-        .filter(
-          (o) => o.innerHTML.toLowerCase().includes('awful') || o.innerHTML.toLowerCase().includes('very dissatisfied'),
-        )
-        .at(-1),
+  const answer = await waitFor(
+    () => deepQuerySelectorAll<HTMLElement | null>('[class="ytp-ad-survey-answer"]').at(-1),
     {
       timeoutMs: 4000,
       intervalMs: 100,
-      minMs: 2000,
+      minMs: 1000,
     },
   );
 
-  answerButton?.click();
+  console.log(answer);
+
+  const button = answer.querySelector('button');
+  console.log(button);
+
+  if (!button) {
+    return;
+  }
+
+  button.click();
 
   sendMessageBackground({
     id: 'analytics',
