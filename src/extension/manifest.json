@@ -1,7 +1,11 @@
 {
   "name": "Auto Skip Youtube Ads",
+  "short_name": "Skip Ads",
   "description": "Auto Skip Youtube Ads",
   "version": "1.0.0",
+  "version_name": "1.0.0",
+  "minimum_chrome_version": "109",
+  "homepage_url": "https://github.com/Joel2B/Auto-Skip-Youtube-Ads",
   "icons": {
     "16": "img/icon16.png",
     "48": "img/icon48.png",
