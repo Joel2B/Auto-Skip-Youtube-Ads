@@ -21,6 +21,7 @@
   "background": {
     "service_worker": "js/background.js"
   },
+  "incognito": "spanning",
   "permissions": ["activeTab", "storage", "tabs", "scripting", "debugger"],
   "host_permissions": ["*://*.youtube.com/*"],
   "manifest_version": 3

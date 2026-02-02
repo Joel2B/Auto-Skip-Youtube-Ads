@@ -1,9 +1,99 @@
 import { getLocalStorage, setLocalStorage } from 'utils/chrome/storage';
 import { onMessage } from 'utils/chrome/runtime';
-import type { Analytics } from 'types/analytics';
+import type { Analytics, AnalyticsUpdateValue } from 'types/analytics';
 import { isAnalyticsMessage, isDebuggerClickMessage } from 'types/messages';
 
 const debuggerProtocolVersion = '1.3';
+let analyticsWriteQueue: Promise<void> = Promise.resolve();
+
+function createAnalyticsDefaults(): Analytics {
+  return {
+    methods: {
+      1: { error: 0, success: 0 },
+      3: { error: 0, success: 0 },
+    },
+    surveys: 0,
+  };
+}
+
+function normalizeAnalytics(data: Analytics | null): Analytics {
+  const defaults = createAnalyticsDefaults();
+
+  if (!data || typeof data !== 'object') {
+    return defaults;
+  }
+
+  const methods = data.methods ?? {};
+  const normalizedMethods: Analytics['methods'] = {};
+
+  for (const method of Object.keys(defaults.methods)) {
+    const stats = methods[method];
+    const error = Number(stats?.error);
+    const success = Number(stats?.success);
+
+    normalizedMethods[method] = {
+      error: Number.isFinite(error) ? error : 0,
+      success: Number.isFinite(success) ? success : 0,
+    };
+  }
+
+  const surveys = Number(data.surveys);
+
+  return {
+    methods: normalizedMethods,
+    surveys: Number.isFinite(surveys) ? surveys : 0,
+  };
+}
+
+async function setLocalStorageAsync(key: string, value: unknown): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.storage.local.set(
+      {
+        [key]: value,
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.warn('setLocalStorageAsync failed:', chrome.runtime.lastError.message);
+        }
+
+        resolve();
+      },
+    );
+  });
+}
+
+async function updateAnalytics(value: AnalyticsUpdateValue): Promise<void> {
+  const storage = await getLocalStorage<Analytics>('analytics');
+  const data = normalizeAnalytics(storage);
+
+  if (typeof value === 'string') {
+    data[value] += 1;
+  } else {
+    const methodKey = String(value.method);
+
+    if (!data.methods[methodKey]) {
+      data.methods[methodKey] = { error: 0, success: 0 };
+    }
+
+    if (value.status) {
+      data.methods[methodKey].success += 1;
+    } else {
+      data.methods[methodKey].error += 1;
+    }
+  }
+
+  await setLocalStorageAsync('analytics', data);
+}
+
+function queueAnalyticsUpdate(value: AnalyticsUpdateValue): Promise<void> {
+  analyticsWriteQueue = analyticsWriteQueue
+    .catch(() => {})
+    .then(async () => {
+      await updateAnalytics(value);
+    });
+
+  return analyticsWriteQueue;
+}
 
 async function queryActiveTabId(): Promise<number | null> {
   return new Promise((resolve) => {
@@ -167,26 +257,8 @@ onMessage(async (request, sender) => {
     return;
   }
 
-  const id = request.id;
   const value = request.value;
-
-  if (id == 'analytics') {
-    const data: Analytics = await getLocalStorage<Analytics>(id);
-
-    if (typeof value === 'string') {
-      data[value] += 1;
-    } else {
-      const methodKey = String(value.method);
-
-      if (value.status) {
-        data.methods[methodKey].success += 1;
-      } else {
-        data.methods[methodKey].error += 1;
-      }
-    }
-
-    setLocalStorage(id, data);
-  }
+  await queueAnalyticsUpdate(value);
 }, true);
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -197,6 +269,8 @@ chrome.runtime.onInstalled.addListener((details) => {
       m3: true,
       experimental: false,
     });
+
+    setLocalStorage('analytics', createAnalyticsDefaults());
   }
 
   if (details.reason === 'install' || details.reason === 'update') {
