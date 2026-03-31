@@ -8,7 +8,7 @@
     "watch": "webpack -w",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix && prettier --write \"src/**/*.{ts,scss,css,html,json,md}\""
-  },
+  }, 
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Joel2B/Auto-Skip-Youtube-Ads.git"
@@ -24,22 +24,22 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.1.36",
-    "@types/node": "^25.0.9",
-    "copy-webpack-plugin": "^13.0.1",
-    "css-loader": "^7.1.2",
-    "eslint": "^9.39.2",
+    "@types/node": "^25.5.0",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.4",
+    "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.53.1",
-    "@typescript-eslint/parser": "^8.53.1",
+    "globals": "^17.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
     "html-webpack-plugin": "^5.6.6",
-    "mini-css-extract-plugin": "^2.10.0",
+    "mini-css-extract-plugin": "^2.10.2",
     "prettier": "^3.8.1",
-    "sass": "^1.97.2",
-    "sass-loader": "^16.0.6",
+    "sass": "^1.98.0",
+    "sass-loader": "^16.0.7",
     "ts-loader": "^9.5.4",
-    "typescript": "^5.9.3",
-    "webpack": "^5.104.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^6.0.2",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^7.0.2"
   }
 }
