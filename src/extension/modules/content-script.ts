@@ -187,6 +187,11 @@ function runInterval() {
       // modal ad blocker
       if (container.querySelector('img')) {
         const svg = container.querySelector('button svg');
+
+        if (!svg) {
+          continue;
+        }
+
         const button = svg.closest('button');
         console.log(button, svg);
 

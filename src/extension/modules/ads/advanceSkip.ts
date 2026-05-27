@@ -79,6 +79,10 @@ export async function advanceSkip() {
       }
 
       video.currentTime = Math.max(0, video.duration - 0.05);
+
+      setTimeout(() => {
+        video.play();
+      });
     }
 
     const adButton = await waitFor(() => deepQuerySelectorAll<HTMLElement | null>('.ytp-skip-ad-button').at(-1), {
